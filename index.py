@@ -16,7 +16,7 @@ KB = 2 ** 10
 MB = 2 ** 20
 GB = 2 ** 30
 
-def build_index(s3_client, bucket_name, object_key, rebuild_existing = False):
+def build_index(s3_client, bucket_name, object_key, rebuild_existing = False, spacing = 32*MB, readbuf_size = 16*MB):
     assert(object_key.endswith(".gz"))
 
     host = "__unknown_host__"
@@ -37,7 +37,7 @@ def build_index(s3_client, bucket_name, object_key, rebuild_existing = False):
         return
 
     # Use with indexed_gzip
-    with indexed_gzip.IndexedGzipFile(fileobj=seekable_stream, spacing = 32*MB, readbuf_size = 16*MB) as fobj:
+    with indexed_gzip.IndexedGzipFile(fileobj=seekable_stream, spacing = spacing, readbuf_size = readbuf_size) as fobj:
         fobj.build_full_index()
         os.makedirs(destination_dir, exist_ok = True)
         print(dir(fobj._IndexedGzipFile__igz_fobj))
