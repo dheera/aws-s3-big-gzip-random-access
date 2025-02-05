@@ -16,7 +16,7 @@ KB = 2 ** 10
 MB = 2 ** 20
 GB = 2 ** 30
 
-def build_index(s3_client, bucket_name, object_key, rebuild_existing = False, spacing = 32*MB, readbuf_size = 16*MB):
+def build_index(s3_client, bucket_name, object_key, rebuild_existing = False, spacing = 32*MB, readbuf_size = 16*MB, s3_destination = None):
     assert(object_key.endswith(".gz"))
 
     host = "__unknown_host__"
@@ -40,12 +40,14 @@ def build_index(s3_client, bucket_name, object_key, rebuild_existing = False, sp
     with indexed_gzip.IndexedGzipFile(fileobj=seekable_stream, spacing = spacing, readbuf_size = readbuf_size) as fobj:
         fobj.build_full_index()
         os.makedirs(destination_dir, exist_ok = True)
-        print(dir(fobj._IndexedGzipFile__igz_fobj))
         fobj.export_index(destination_path)
 
+    if s3_destination is not None:
+        dest_client, dest_bucketname, dest_prefix = s3_destination
+        dest_client.upload_file(destination_path, dest_bucketname, os.path.join(dest_prefix, host, bucket_name, object_key.replace(".gz", ".gzidx")))
+        os.remove(destination_path)
 
-
-def build_index_for_prefix(s3_client, bucket_name, in_prefix):
+def build_index_for_prefix(s3_client, bucket_name, in_prefix, spacing = 32*MB, readbuf_size = 16*MB, s3_destination = None):
     paginator = s3_client.get_paginator('list_objects_v2')
     indexables = []
     for page in paginator.paginate(Bucket=bucket_name, Prefix=in_prefix):
@@ -55,7 +57,7 @@ def build_index_for_prefix(s3_client, bucket_name, in_prefix):
 
     for indexable in indexables:
         print(f"Building index for {indexable}")
-        build_index(s3_client, bucket_name, indexable)
+        build_index(s3_client, bucket_name, indexable, spacing = spacing, readbuf_size = readbuf_size, s3_destination = s3_destination)
 
 def get_stream(s3_client, bucket_name, object_key, index_file = None):
     assert(object_key.endswith(".gz"))
