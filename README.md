@@ -2,13 +2,17 @@
 
 ## Problem
 
-Sometimes datasets are on s3 in some gzipped format, e.g. .csv.gz.
-You want to random access parts of them (e.g. for ML training).
+Sometimes datasets are on S3 in some gzipped format, e.g. .csv.gz, with ungodly file sizes.
+
+Polygon, for example, has option data stored in 100GB+ .csv.gz files on S3.
+
+You want to random access parts of them for some ML training, analysis, genomics, whatever.
 
 ## Best solution
 
-The best solution is not this repo. The best solution is to NOT use vanilla gzip and instead use bgzip, bzip2, or some other random-access-friendly compression algorithm.
-However, that is not always possible, because someone else used vanilla gzip, there are petabytes of files somewhere on S3, and you need to random access them.
+The best architectural solution is NOT to use this repo.
+If you have control over the dataset, the best solution is to NOT use vanilla gzip and instead use bgzip, bzip2, or some other random-access-friendly compression algorithm.
+However, that is not always possible, because someone else made the dataset, they used vanilla gzip, there are petabytes of it somewhere on S3, and you the poor engineer still needs to random access them.
 Enter this repo.
 
 ## This solution
