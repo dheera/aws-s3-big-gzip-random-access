@@ -7,11 +7,10 @@ from boto3.s3.transfer import TransferConfig
 from botocore.config import Config
 
 class SeekableS3Stream(io.RawIOBase):
-    def __init__(self, s3_client, bucket, key, chunk_size=8192):
+    def __init__(self, s3_client, bucket, key):
         self.s3_client = s3_client
         self.bucket = bucket
         self.key = key
-        self.chunk_size = chunk_size
         self.position = 0
         self.file_size = self._get_file_size()
         self.stream = self._open_stream()
