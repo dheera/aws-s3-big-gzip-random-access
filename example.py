@@ -11,7 +11,7 @@ from botocore.config import Config
 import indexed_gzip # pip3 install indexed_gzip
 
 from seekable_s3_stream import SeekableS3Stream
-from index import build_index_for_file, get_stream_for_file
+from index import build_index, get_stream
 
 KB = 2 ** 10
 MB = 2 ** 20
@@ -36,7 +36,8 @@ session = boto3.Session(
 
 s3 = session.client("s3", endpoint_url=config["s3_endpoint"], config=Config(signature_version='s3v4'))
 bucket_name = "flatfiles"
-object_key = "us_options_opra/quotes_v1/2025/01/2025-01-28.csv.gz" # massive 100GB+ file
+
+object_key = "us_options_opra/quotes_v1/2025/01/2025-01-28.csv.gz" # 100GB+ large example
 
 build_index(s3, bucket_name, object_key)
 
@@ -45,9 +46,9 @@ build_index(s3, bucket_name, object_key)
 # This can be done from anywhere even with a low bandwidth connection.
 # You just need to transfer the index directory .gzidx/ to wherever you plan to access from
 
-stream = get_sream(s3, bucket_name, object_key)
+stream = get_stream(s3, bucket_name, object_key)
 
-stream.seek(53 * GB) # seek to a location 53GB into the file to demonstrate random access
+stream.seek(53*GB) # seek to a location 53GB into the file to demonstrate random access
 stream.readline() # throwaway the first partial CSV line
 
 for i in range(20): # read 20 more lines
