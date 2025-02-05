@@ -39,6 +39,7 @@ bucket_name = "flatfiles"
 
 object_key = "us_options_opra/quotes_v1/2025/01/2025-01-28.csv.gz" # 100GB+ large example
 
+# this will take a while
 build_index(s3, bucket_name, object_key)
 
 # Step 1: Random access
