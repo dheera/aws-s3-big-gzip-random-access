@@ -3,14 +3,11 @@
 import os
 import boto3
 import json
-import io
-import re
 
 from boto3.s3.transfer import TransferConfig
 from botocore.config import Config
 import indexed_gzip # pip3 install indexed_gzip
 
-from seekable_s3_stream import SeekableS3Stream
 from index import build_index, get_stream
 
 KB = 2 ** 10
